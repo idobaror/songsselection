@@ -1,20 +1,35 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>בחירת שירים</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       direction: rtl;
-      background: #f9f9f9;
+      background: linear-gradient(135deg, #FF6F61 0%, #FFD700 25%, #50C878 50%, #1E90FF 75%, #EE82EE 100%);
+      background-size: 600% 600%;
+      animation: gradientBG 15s ease infinite;
       padding: 30px;
+      color: #333;
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
     }
     h2 {
       text-align: center;
+      color: #fff;
+      text-shadow: 0 0 5px #000;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 30px auto;
+      max-width: 300px;
     }
     .category {
-      background: #eee;
+      background: rgba(255, 255, 255, 0.9);
       padding: 12px;
       margin-bottom: 10px;
       cursor: pointer;
@@ -23,12 +38,12 @@
       transition: background 0.2s;
     }
     .category:hover {
-      background: #ddd;
+      background: #f0f0f0;
     }
     .songs {
       display: none;
       padding: 10px 20px;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.95);
       border: 1px solid #ccc;
       border-radius: 6px;
       margin-bottom: 20px;
@@ -39,6 +54,7 @@
   </style>
 </head>
 <body>
+  <img class="logo" src="eclectica-logo.png" alt="Eclectica Logo">
   <h2>בחירת שירים</h2>
   <div id="songs-container">טוען שירים מהגיליון...</div>
 
