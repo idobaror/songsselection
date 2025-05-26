@@ -73,6 +73,13 @@
     button:hover {
       background-color: #555;
     }
+    #selection-display {
+      text-align: right;
+      margin-top: 20px;
+      background: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
@@ -80,6 +87,7 @@
   <img class="logo" src="eclectica-logo.png" alt="Eclectica Logo">
   <h2>בחירת שירים</h2>
   <div id="songs-container">טוען שירים מהגיליון...</div>
+  <div id="selection-display"></div>
   <div class="buttons">
     <button onclick="showSelection()">הצג בחירה</button>
     <button onclick="exportSelection()">ייצא רשימה</button>
@@ -144,20 +152,18 @@
         console.error(err);
       });
 
-  function showSelection() {
-  const checked = document.querySelectorAll('.song-item input:checked');
-  const songs = Array.from(checked).map(cb => cb.value);
-  const display = document.getElementById("selection-display");
+    function showSelection() {
+      const checked = document.querySelectorAll('.song-item input:checked');
+      const songs = Array.from(checked).map(cb => cb.value);
+      const display = document.getElementById("selection-display");
 
-  if (songs.length === 0) {
-    display.innerHTML = "<p>לא נבחרו שירים.</p>";
-  } else {
-    display.innerHTML = "<strong>✔ השירים שבחרת:</strong><ul>" +
-      songs.map(s => "<li>" + s + "</li>").join("") +
-      "</ul>";
-  }
-}
-
+      if (songs.length === 0) {
+        display.innerHTML = "<p>לא נבחרו שירים.</p>";
+      } else {
+        display.innerHTML = "<strong>✔ השירים שבחרת:</strong><ul>" +
+          songs.map(s => "<li>" + s + "</li>").join("") +
+          "</ul>";
+      }
     }
 
     function exportSelection() {
