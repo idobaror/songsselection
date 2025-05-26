@@ -52,6 +52,7 @@
       margin: 5px 0;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
   <img class="logo" src="eclectica-logo.png" alt="Eclectica Logo">
@@ -61,39 +62,33 @@
   <script>
     const CSV_URL = "https://docs.google.com/spreadsheets/d/1Rg_O_ZIoFa4uQZgUs4viuJjl6PWzzSgcFsozD0T0mWs/gviz/tq?tqx=out:csv";
 
-    function parseCSV(data) {
-      const lines = data.trim().split("\n");
-      const rows = lines.map(line => line.split(","));
-      const headers = rows[0];
-      const result = [];
-
-      for (let i = 1; i < rows.length; i++) {
-        let row = {};
-        for (let j = 0; j < headers.length; j++) {
-          row[headers[j].trim()] = rows[i][j] ? rows[i][j].trim() : "";
-        }
-        result.push(row);
-      }
-      return result;
-    }
-
     fetch(CSV_URL)
       .then(response => response.text())
-      .then(text => {
-        const entries = parseCSV(text);
+      .then(csvText => {
+        const results = Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true
+        });
+
+        const entries = results.data;
         const container = document.getElementById('songs-container');
         container.innerHTML = "";
 
         const categories = {};
 
         entries.forEach(entry => {
-          const category = entry["category"];
-          const song = entry["song"];
+          const category = entry["category"]?.trim();
+          const song = entry["song"]?.trim();
           if (!category || !song) return;
 
           if (!categories[category]) categories[category] = [];
           categories[category].push(song);
         });
+
+        if (Object.keys(categories).length === 0) {
+          container.textContent = "לא נמצאו שירים.";
+          return;
+        }
 
         Object.keys(categories).forEach(category => {
           const catDiv = document.createElement('div');
