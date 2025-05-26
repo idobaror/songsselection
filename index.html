@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <title>בחירת שירים</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Rubik', sans-serif;
       direction: rtl;
       background: linear-gradient(135deg, #FF6F61 0%, #FFD700 25%, #50C878 50%, #1E90FF 75%, #EE82EE 100%);
       background-size: 600% 600%;
@@ -51,6 +52,27 @@
     .song-item {
       margin: 5px 0;
     }
+    .song-item input {
+      margin-left: 10px;
+    }
+    .buttons {
+      text-align: center;
+      margin-top: 30px;
+    }
+    button {
+      font-family: 'Rubik', sans-serif;
+      font-size: 16px;
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background-color: #333;
+      color: #fff;
+    }
+    button:hover {
+      background-color: #555;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
@@ -58,6 +80,10 @@
   <img class="logo" src="eclectica-logo.png" alt="Eclectica Logo">
   <h2>בחירת שירים</h2>
   <div id="songs-container">טוען שירים מהגיליון...</div>
+  <div class="buttons">
+    <button onclick="showSelection()">הצג בחירה</button>
+    <button onclick="exportSelection()">ייצא רשימה</button>
+  </div>
 
   <script>
     const CSV_URL = "https://docs.google.com/spreadsheets/d/1Rg_O_ZIoFa4uQZgUs4viuJjl6PWzzSgcFsozD0T0mWs/gviz/tq?tqx=out:csv";
@@ -85,11 +111,6 @@
           categories[category].push(song);
         });
 
-        if (Object.keys(categories).length === 0) {
-          container.textContent = "לא נמצאו שירים.";
-          return;
-        }
-
         Object.keys(categories).forEach(category => {
           const catDiv = document.createElement('div');
           catDiv.className = 'category';
@@ -106,7 +127,11 @@
           categories[category].forEach(song => {
             const item = document.createElement('div');
             item.className = 'song-item';
-            item.textContent = song;
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = song;
+            item.appendChild(checkbox);
+            item.appendChild(document.createTextNode(song));
             songsDiv.appendChild(item);
           });
 
@@ -118,6 +143,22 @@
         document.getElementById('songs-container').innerText = "אירעה שגיאה בטעינת השירים.";
         console.error(err);
       });
+
+    function showSelection() {
+      const checked = document.querySelectorAll('.song-item input:checked');
+      const songs = Array.from(checked).map(cb => cb.value);
+      alert("השירים שנבחרו:\n\n" + songs.join("\n"));
+    }
+
+    function exportSelection() {
+      const checked = document.querySelectorAll('.song-item input:checked');
+      const songs = Array.from(checked).map(cb => cb.value);
+      const blob = new Blob([songs.join("\n")], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'selected_songs.txt';
+      link.click();
+    }
   </script>
 </body>
 </html>
