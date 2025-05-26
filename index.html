@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>בחירת שירים</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      background: #f9f9f9;
+      padding: 30px;
+    }
+    h2 {
+      text-align: center;
+    }
+    .category {
+      background: #eee;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .category:hover {
+      background: #ddd;
+    }
+    .songs {
+      display: none;
+      padding: 10px 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .song-item {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>בחירת שירים</h2>
+  <div id="songs-container">טוען שירים מהגיליון...</div>
+
+  <script>
+    const SHEET_ID = "1Rg_O_ZIoFa4uQZgUs4viuJjl6PWzzSgcFsozD0T0mWs";
+    const SHEET_URL = `https://spreadsheets.google.com/feeds/list/${SHEET_ID}/od6/public/values?alt=json`;
+
+    fetch(SHEET_URL)
+      .then(response => response.json())
+      .then(data => {
+        const entries = data.feed.entry;
+        const container = document.getElementById('songs-container');
+        container.innerHTML = "";
+
+        const categories = {};
+
+        entries.forEach(entry => {
+          const category = entry.gsx$category.$t;
+          const song = entry.gsx$song.$t;
+
+          if (!categories[category]) categories[category] = [];
+          categories[category].push(song);
+        });
+
+        Object.keys(categories).forEach(category => {
+          const catDiv = document.createElement('div');
+          catDiv.className = 'category';
+          catDiv.textContent = '▶ ' + category;
+          catDiv.onclick = () => {
+            const songList = catDiv.nextElementSibling;
+            const isOpen = songList.style.display === 'block';
+            songList.style.display = isOpen ? 'none' : 'block';
+            catDiv.textContent = (isOpen ? '▶ ' : '▼ ') + category;
+          };
+
+          const songsDiv = document.createElement('div');
+          songsDiv.className = 'songs';
+          categories[category].forEach(song => {
+            const item = document.createElement('div');
+            item.className = 'song-item';
+            item.textContent = song;
+            songsDiv.appendChild(item);
+          });
+
+          container.appendChild(catDiv);
+          container.appendChild(songsDiv);
+        });
+      })
+      .catch(err => {
+        document.getElementById('songs-container').innerText = "אירעה שגיאה בטעינת השירים.";
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
