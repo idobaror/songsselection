@@ -144,10 +144,20 @@
         console.error(err);
       });
 
-    function showSelection() {
-      const checked = document.querySelectorAll('.song-item input:checked');
-      const songs = Array.from(checked).map(cb => cb.value);
-      alert("השירים שנבחרו:\n\n" + songs.join("\n"));
+  function showSelection() {
+  const checked = document.querySelectorAll('.song-item input:checked');
+  const songs = Array.from(checked).map(cb => cb.value);
+  const display = document.getElementById("selection-display");
+
+  if (songs.length === 0) {
+    display.innerHTML = "<p>לא נבחרו שירים.</p>";
+  } else {
+    display.innerHTML = "<strong>✔ השירים שבחרת:</strong><ul>" +
+      songs.map(s => "<li>" + s + "</li>").join("") +
+      "</ul>";
+  }
+}
+
     }
 
     function exportSelection() {
