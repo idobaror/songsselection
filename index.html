@@ -100,6 +100,8 @@
   <script>
     const CSV_URL = "https://docs.google.com/spreadsheets/d/1Rg_O_ZIoFa4uQZgUs4viuJjl6PWzzSgcFsozD0T0mWs/gviz/tq?tqx=out:csv";
 
+    let entries = [];
+
     fetch(CSV_URL)
       .then(response => response.text())
       .then(csvText => {
@@ -108,22 +110,29 @@
           skipEmptyLines: true
         });
 
-        const entries = results.data;
+        entries = results.data;
         const container = document.getElementById('songs-container');
         container.innerHTML = "";
 
         const categories = {};
 
+        // --- בניית מבנה נתונים כולל כוכב ---
         entries.forEach(entry => {
           const category = entry["category"]?.trim();
           const song = entry["song"]?.trim();
+          const star = entry["star"]?.trim(); // ⭐ בעמודה נפרדת
+
           if (!category || !song) return;
 
           if (!categories[category]) categories[category] = [];
-          categories[category].push(song);
-          categories[category].sort((a, b) => a.localeCompare(b, 'he'));
+          categories[category].push({ song, star });
+
+          categories[category].sort((a, b) =>
+            a.song.localeCompare(b.song, 'he')
+          );
         });
 
+        // --- בניית הממשק ---
         Object.keys(categories).forEach(category => {
           const catDiv = document.createElement('div');
           catDiv.className = 'category';
@@ -137,14 +146,28 @@
 
           const songsDiv = document.createElement('div');
           songsDiv.className = 'songs';
-          categories[category].forEach(song => {
+
+          categories[category].forEach(itemData => {
             const item = document.createElement('div');
             item.className = 'song-item';
+
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
-            checkbox.value = song;
+            checkbox.value = itemData.song; // שם נקי בלי כוכב
+
+            // לשימוש עתידי בלבד (כרגע לא מסננים):
+            if (itemData.star === "⭐") {
+              checkbox.dataset.star = "true";
+            }
+
             item.appendChild(checkbox);
-            item.appendChild(document.createTextNode(song));
+
+            // הצגת כוכב באתר בלבד
+            const label = itemData.star === "⭐"
+              ? `${itemData.song} ⭐`
+              : itemData.song;
+
+            item.appendChild(document.createTextNode(label));
             songsDiv.appendChild(item);
           });
 
@@ -157,24 +180,29 @@
         console.error(err);
       });
 
+    // --- הצגת בחירה ללא כוכבים ---
     function showSelection() {
-      const checked = document.querySelectorAll('.song-item input:checked');
-      const songs = Array.from(checked).map(cb => cb.value);
+      const selected = Array.from(document.querySelectorAll('.song-item input:checked'))
+        .map(cb => cb.value); // שם בלי כוכב
+
       const display = document.getElementById("selection-display");
 
-      if (songs.length === 0) {
+      if (selected.length === 0) {
         display.innerHTML = "<p>לא נבחרו שירים.</p>";
       } else {
-        display.innerHTML = "<strong>✔ השירים שבחרת:</strong><ul>" +
-          songs.map(s => "<li>" + s + "</li>").join("") +
+        display.innerHTML =
+          "<strong>✔ השירים שבחרת:</strong><ul>" +
+          selected.map(s => "<li>" + s + "</li>").join("") +
           "</ul>";
       }
     }
 
+    // --- ייצוא רשימה ללא כוכבים ---
     function exportSelection() {
-      const checked = document.querySelectorAll('.song-item input:checked');
-      const songs = Array.from(checked).map(cb => cb.value);
-      const blob = new Blob([songs.join("\n")], { type: 'text/plain' });
+      const selected = Array.from(document.querySelectorAll('.song-item input:checked'))
+        .map(cb => cb.value); // שם נקי
+
+      const blob = new Blob([selected.join("\n")], { type: 'text/plain' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = 'selected_songs.txt';
